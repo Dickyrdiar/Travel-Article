@@ -14,7 +14,7 @@ import { login } from "../../redux/autSlice";
 
 const LoginPath: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
-  const { loading, error } = useSelector((state: RootState) => state.auth)
+  const { loading } = useSelector((state: RootState) => state.auth)
 
   const [email, setEmail] = useState<string>("")
   const [password, setPassword] = useState<string>("")
@@ -74,9 +74,7 @@ const LoginPath: React.FC = () => {
             You dont have account please <a href="/register" className="underline">regisert</a>
           </Typography>
 
-          {error && <p className="mt-4">{
-            error.error.message
-          }</p>}
+          {/* {error && <p className="mt-4 text-red-500">{error.message}</p>} */}
         </CardFooter>
       </Card>
     </div>
