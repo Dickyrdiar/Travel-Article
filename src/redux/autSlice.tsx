@@ -36,6 +36,7 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.token = null;
+      localStorage.removeItem('token'); // Remove the token from localStorage
     },
   },
   extraReducers: (builder) => {
@@ -45,9 +46,11 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(login.fulfilled, (state, action: PayloadAction<any>) => {
+        const { user, jwt } = action.payload;
         state.loading = false;
-        state.user = action.payload.user;
-        state.token = action.payload.jwt;
+        state.user = user;
+        state.token = jwt;
+        localStorage.setItem('token', jwt); // Save the token to localStorage
       })
       .addCase(login.rejected, (state, action: PayloadAction<any>) => {
         state.loading = false;
