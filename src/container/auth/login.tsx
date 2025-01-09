@@ -7,14 +7,16 @@ import {
   Button,
 } from "@material-tailwind/react";
 import Input from "../../components/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/store";
 import { login } from "../../redux/autSlice";
+import { useNavigate } from "react-router-dom";
 
 const LoginPath: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
-  const { loading, error } = useSelector((state: RootState) => state.auth)
+  const { loading, error, user } = useSelector((state: RootState) => state.auth)
+  const navigate = useNavigate()
 
   const [email, setEmail] = useState<string>("")
   const [password, setPassword] = useState<string>("")
@@ -22,6 +24,12 @@ const LoginPath: React.FC = () => {
   const handleLogin = () => {
     dispatch(login({ identifier: email, password }))
   }
+
+  useEffect(() => {
+    if (user) {
+      navigate('/homePage')
+    }
+  }, [navigate, user])  
 
 
   return (

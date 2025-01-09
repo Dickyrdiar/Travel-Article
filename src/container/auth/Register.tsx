@@ -85,6 +85,16 @@ const RegisterPage: React.FC = () => {
               {loading ? 'Loading...' : 'Register'}
             </button>
           </form>
+
+          <Typography className="text-sm sm:text-base text-center mt-4">
+            You have an account?{" "}
+            <a 
+              href="/" 
+              className="underline text-blue-600 hover:text-blue-800 transition-colors duration-200"
+            >
+              Login here
+            </a>
+          </Typography>
         </div>
       </div>
 
