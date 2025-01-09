@@ -14,7 +14,7 @@ import { login } from "../../redux/autSlice";
 
 const LoginPath: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
-  const { loading } = useSelector((state: RootState) => state.auth)
+  const { loading, error } = useSelector((state: RootState) => state.auth)
 
   const [email, setEmail] = useState<string>("")
   const [password, setPassword] = useState<string>("")
@@ -25,56 +25,78 @@ const LoginPath: React.FC = () => {
 
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      <Card className="bg-[#ffff] mt-6 w-96" shadow={true}>
-        <CardBody className="mb-2">
-          <Typography variant="h5" color="blue-gray" className="mb-2">
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-[420px] mx-auto bg-white shadow-xl">
+        <CardBody className="p-4 sm:p-6">
+          <Typography 
+            variant="h5" 
+            color="blue-gray" 
+            className="text-2xl sm:text-3xl font-bold text-center mb-6"
+          >
             Travel Article
           </Typography>
 
-          <Typography className="text-[18px] text-start">
-            Email
-          </Typography>
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+              Failed....
+            </div>
+          )}
 
-          <Typography color="gray" className="mb-2 mt-2">
-            <div className="flex flex-col gap-4">
+          <div className="space-y-4">
+            <div>
+              <Typography className="text-base sm:text-lg font-medium mb-2">
+                Email
+              </Typography>
               <Input 
-                placeholder="Email"
+                placeholder="Enter your email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                className="w-full"
               />
             </div>
-          </Typography>
 
-          <div className="mt-3">
-            <Typography className="text-[18px] text-start">
-              Password
-            </Typography>
-
-            <Typography color="gray" className="mb-2 mt-2">
-              <div className="flex flex-col gap-4">
-                <Input 
-                  placeholder="Password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-            </Typography>
+            <div>
+              <Typography className="text-base sm:text-lg font-medium mb-2">
+                Password
+              </Typography>
+              <Input 
+                placeholder="Enter your password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full"
+              />
+            </div>
           </div>
         </CardBody>
         
-        <CardFooter className="pt-0">
-          <Button onClick={handleLogin} color="black">
-            {loading ? "Loading..." : "Login"}
+        <CardFooter className="px-4 sm:px-6 pb-6 pt-0">
+          <Button 
+            onClick={handleLogin} 
+            color="black"
+            className="w-full py-3 text-base sm:text-lg transition-all duration-200 hover:shadow-lg"
+            fullWidth
+          >
+            {loading ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
+                Loading...
+              </div>
+            ) : (
+              "Login"
+            )}
           </Button>
 
-          <Typography  className="text-[16px] mt-3 text-center">
-            You dont have account please <a href="/register" className="underline">regisert</a>
+          <Typography className="text-sm sm:text-base text-center mt-4">
+            Don't have an account?{" "}
+            <a 
+              href="/register" 
+              className="underline text-blue-600 hover:text-blue-800 transition-colors duration-200"
+            >
+              Register here
+            </a>
           </Typography>
-
-          {/* {error && <p className="mt-4 text-red-500">{error.message}</p>} */}
         </CardFooter>
       </Card>
     </div>
