@@ -33,14 +33,15 @@ export const registerUser = createAsyncThunk<
   async (credentials: { username: string, email: string, password: string }, { rejectWithValue }) => {
     try {
       const response = await axios.post(API_URL, credentials);
+      console.log("response", response)
       
       // Assuming the API returns { user: User, jwt: string }
-      const { user, jwt } = response.data;
+      const { jwt, user } = response.data;
       
       // Store the token in localStorage
       localStorage.setItem('token', jwt);
       
-      return { ...user, jwt };
+      return { ...user, jwt } ;
     } catch (error) {
       if (axios.isAxiosError(error)) {
         return rejectWithValue(error.response?.data?.message || 'Registration failed');

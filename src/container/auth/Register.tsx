@@ -8,12 +8,13 @@ import { registerUser } from '../../redux/registerSlice'
 
 const RegisterPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
-  const { loading, error } = useSelector((state: RootState) => state.authRegis)
+  const { loading, error, user } = useSelector((state: RootState) => state.authRegis)
 
   const [email, setEmail] = useState<string>("")
   const [password, setPassword] = useState<string>("")
   const [username, setUsername] = useState<string>("")
 
+  console.log("user", user)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
