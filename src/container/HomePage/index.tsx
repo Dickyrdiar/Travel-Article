@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -33,9 +34,11 @@ const HomePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
+  const [searchTitle, setSearchTitle] = useState<string>("");
 
-  const fetchArticles = useCallback(async (page: number) => {
-    const url = `https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/articles?populate=*&pagination[page]=${page}&pagination[pageSize]=10`;
+  // Fetch articles with optional title search
+  const fetchArticles = useCallback(async (page: number, title: string) => {
+    const url = `https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/articles?populate=*&pagination[page]=${page}&pagination[pageSize]=10${title ? `&filters[title][$containsi]=${title}` : ""}`;
     const token = localStorage.getItem("token");
 
     try {
@@ -58,8 +61,8 @@ const HomePage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    fetchArticles(page);
-  }, [page, fetchArticles]);
+    fetchArticles(page, searchTitle);
+  }, [page, searchTitle, fetchArticles]);
 
   const handleScroll = () => {
     if (
@@ -77,9 +80,39 @@ const HomePage: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [loading, hasMore]);
 
+  // Handle search title change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTitle(e.target.value);
+    setPage(1); // Reset to page 1 on search change
+  };
+
+  // Handle form submit
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPage(1); 
+    fetchArticles(1, searchTitle);
+  };
+
   return (
     <div className="h-full w-full">
-      <div className="w-[1200px] mt-4">
+      {/* <div className="flex justify-end mt-[50px] relative z-10">
+        <form onSubmit={handleSearchSubmit} className="flex gap-2 fixed top-4 right-4">
+          <input
+            type="text"
+            placeholder="Search by title"
+            value={searchTitle}
+            onChange={handleSearchChange}
+            className="p-2 border rounded"
+          />
+          <button type="submit" className="bg-[#000000] text-white p-2 rounded">
+            Search
+          </button>
+        </form>
+      </div> */}
+
+
+
+      <div className="w-[1200px] mt-[90px]">
         {loading && page === 1 ? (
           <div>Loading...</div>
         ) : error ? (
