@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -95,8 +95,8 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="h-full w-full">
-      {/* <div className="flex justify-end mt-[50px] relative z-10">
-        <form onSubmit={handleSearchSubmit} className="flex gap-2 fixed top-4 right-4">
+      <div className="flex justify-end mt-[50px] relative">
+        <form onSubmit={handleSearchSubmit} className="flex gap-2 top-4 right-4">
           <input
             type="text"
             placeholder="Search by title"
@@ -108,9 +108,7 @@ const HomePage: React.FC = () => {
             Search
           </button>
         </form>
-      </div> */}
-
-
+      </div>
 
       <div className="w-[1200px] mt-[90px]">
         {loading && page === 1 ? (
