@@ -5,6 +5,7 @@ import LoginPath from './container/auth/login';
 import RegisterPage from './container/auth/Register';
 import HomePage from './container/HomePage';
 import { PrivateRoute } from './components/privateRoute';
+import Wrapper from './container/Wrapper';
 
 function App() {
   return (
@@ -14,7 +15,9 @@ function App() {
           <Route path='/' Component={LoginPath} />
           <Route path='/register' Component={RegisterPage} />
           <Route element={<PrivateRoute />}>
-            <Route path='/homePage' Component={HomePage} />
+            <Route element={<Wrapper />}>
+              <Route path='/homePage' Component={HomePage} />
+            </Route>
           </Route>
         </Routes>
      </Router>
