@@ -20,8 +20,10 @@ import {
   LifebuoyIcon,
   PowerIcon,
   Bars2Icon,
-  DocumentIcon
+  DocumentIcon,
+  ChartBarIcon
 } from "@heroicons/react/24/solid";
+import { useNavigate } from "react-router-dom";
 
 
 // Profile Menu component
@@ -111,6 +113,7 @@ type NavListItem = {
 const navListItems: NavListItem[] = [
   { label: "Create Article", icon: DocumentIcon, link: "/create-article" },
   { label: "Category", icon: CubeTransparentIcon, link: "/category" },
+  { label: "Statistic", icon: ChartBarIcon, link: "/statistic" },
   // Add other items as necessary
 ];
 
@@ -139,8 +142,8 @@ function NavList() {
 
 export function ComplexNavbar() {
   const [isNavOpen, setIsNavOpen] = useState<boolean>(false);
-
   const toggleIsNavOpen = () => setIsNavOpen((cur) => !cur);
+  const navigate = useNavigate()
 
   useEffect(() => {
     window.addEventListener(
@@ -149,15 +152,20 @@ export function ComplexNavbar() {
     );
   }, []);
 
+  const handleLogout = (): void => {
+    localStorage.removeItem("token")
+    navigate('/')
+  }
+
   return (
     <Navbar className="mx-auto max-w-screen-xl bg-[#000000] p-2 lg:rounded-full lg:pl-6 fixed w-full z-10">
       <div className="relative mx-auto flex items-center justify-between text-blue-gray-900">
         <Typography
           as="a"
-          href="#"
+          href="/homePage"
           className="mr-4 ml-2 cursor-pointer py-1.5 font-medium text-[#ffff]"
         >
-          Material Tailwind
+          Travel Article
         </Typography>
         <div className="hidden lg:block">
           <NavList />
@@ -172,7 +180,7 @@ export function ComplexNavbar() {
           <Bars2Icon className="h-6 w-6" />
         </IconButton>
 
-          <Button className="items-end flex justify-end" color="white" size="sm" variant="text">
+          <Button onClick={() => handleLogout} className="items-end flex justify-end" color="white" size="sm" variant="text">
             <span>Log out</span>
           </Button>
         <ProfileMenu />
