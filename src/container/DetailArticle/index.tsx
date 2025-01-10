@@ -172,6 +172,8 @@ const DetaileArticle: React.FC = () => {
     }
   }, [id]);
 
+  console.log("detail", detailArticle)
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
