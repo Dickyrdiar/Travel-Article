@@ -23,3 +23,9 @@
     @apply bg-gradient-to-b from-black/100 via-black/75 to-black/50;
   }
 }
+
+@media (display-mode: standalone) {
+  body {
+    background-color: #000000;
+  }
+}

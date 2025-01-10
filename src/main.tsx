@@ -4,6 +4,9 @@ import { Provider } from 'react-redux';
 import './index.css'
 import { store } from './redux/store'
 import App from './App.tsx'
+import * as serviceWorkerRegistration from './serviceWorkerRegistration.ts'; // Updated import
+
+
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -12,3 +15,5 @@ createRoot(document.getElementById('root')!).render(
     </Provider>
   </StrictMode>,
 )
+
+serviceWorkerRegistration.register()

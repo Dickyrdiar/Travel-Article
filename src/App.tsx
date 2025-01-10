@@ -8,6 +8,7 @@ import { PrivateRoute } from './components/privateRoute';
 import Wrapper from './container/Wrapper';
 import DetaileArticle from './container/DetailArticle';
 import Static from './container/Statistic';
+import Categoty from './container/Category';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
               <Route path='/statistic' Component={Static} />
               <Route path='/homePage' Component={HomePage} />
               <Route path='/detail-article/:id' Component={DetaileArticle} />
+              <Route path='/category' Component={Categoty} />
             </Route>
           </Route>
         </Routes>

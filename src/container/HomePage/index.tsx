@@ -1,7 +1,4 @@
- 
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import axios from "axios";
 import React, { useEffect, useState, useCallback } from "react";
 import ArticleList from "../../components/CardContent";
@@ -50,7 +47,12 @@ const HomePage: React.FC = () => {
       });
 
       const newArticles = response.data.data;
-      setArticles((prev) => [...prev, ...newArticles]);
+      // Reset articles if it's a new search or first page
+      if (page === 1) {
+        setArticles(newArticles);
+      } else {
+        setArticles((prev) => [...prev, ...newArticles]);
+      }
       setHasMore(newArticles.length > 0);
     } catch (err) {
       setError("Failed to fetch articles.");
@@ -60,10 +62,12 @@ const HomePage: React.FC = () => {
     }
   }, []);
 
+  // Fetch articles when page or searchTitle changes
   useEffect(() => {
     fetchArticles(page, searchTitle);
   }, [page, searchTitle, fetchArticles]);
 
+  // Infinite scroll handler
   const handleScroll = () => {
     if (
       window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight ||
@@ -75,6 +79,7 @@ const HomePage: React.FC = () => {
     setPage((prevPage) => prevPage + 1);
   };
 
+  // Add scroll event listener for infinite scroll
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -83,14 +88,13 @@ const HomePage: React.FC = () => {
   // Handle search title change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTitle(e.target.value);
-    setPage(1); // Reset to page 1 on search change
   };
 
   // Handle form submit
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setPage(1); 
-    fetchArticles(1, searchTitle);
+    setPage(1); // Reset to page 1 on search
+    setArticles([]); // Clear existing articles for a new search
   };
 
   return (
