@@ -1,3 +1,5 @@
+ 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -11,6 +13,7 @@ import {
   Textarea,
 } from "@material-tailwind/react";
 import { ConfirmationDialog } from "../../components/Modal";
+
 
 interface ArticleResponse {
   cover_image_url: string;
@@ -71,6 +74,11 @@ const DetaileArticle: React.FC = () => {
   const fetchingComments = async (documentId: string | undefined) => {
     const token = localStorage.getItem("token");
 
+    if (!documentId) {
+      setErrorComment("Invalid document ID.");
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -84,10 +92,19 @@ const DetaileArticle: React.FC = () => {
         }
       );
 
-      setComments(response.data?.data || []); // Ensure comments is an array even if data is undefined
+      // Log the response for debugging
+      console.log("API Response:", response);
+
+      // Ensure comments is an array even if data is undefined
+      setComments(response.data?.data || []);
     } catch (error) {
-      console.error("Error fetching comments:", error);
-      setErrorComment("Failed to fetch comments. Please try again later.");
+      if (axios.isAxiosError(error)) {
+        console.error("Axios Error:", error.response?.data || error.message);
+        setErrorComment(error.response?.data?.message || "Failed to fetch comments. Please try again later.");
+      } else {
+        console.error("Unexpected Error:", error);
+        setErrorComment("An unexpected error occurred. Please try again later.");
+      }
     } finally {
       setLoading(false);
     }
@@ -95,26 +112,28 @@ const DetaileArticle: React.FC = () => {
 
   const handlePostComment = async () => {
     const token = localStorage.getItem("token");
-  
+
     if (!commentContent || !commentContent.trim()) {
       setErrorComment("Comment cannot be empty.");
       return;
     }
-  
+
     if (!detailArticle) {
       setErrorComment("Article not found. Cannot post comment.");
       return;
     }
-  
+
     try {
       setLoading(true);
       setErrorComment(null);
-  
+
       const response = await axios.post(
         `https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/comments`,
         {
-          article: detailArticle.id, 
-          content: commentContent.trim(), 
+          data: {
+            article: detailArticle.id,
+            content: commentContent.trim(),
+          },
         },
         {
           headers: {
@@ -122,13 +141,88 @@ const DetaileArticle: React.FC = () => {
           },
         }
       );
-  
-      await fetchingComments(id); 
-      setCommentContent(""); //
+
+      await fetchingComments(detailArticle.documentId);
+      setCommentContent("");
+      setComments(response?.data?.data)
+      navigate('/homePage')
       console.log("response", response);
     } catch (error) {
       console.error("Error posting comment:", error);
       setErrorComment("Failed to post comment. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: number) => {
+    const token = localStorage.getItem("token");
+
+    if (!commentId) {
+      setErrorComment("Invalid comment ID.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setErrorComment(null);
+
+      await axios.delete(
+        `https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/comments/${commentId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Refresh comments after deletion
+      if (detailArticle?.documentId) {
+        await fetchingComments(detailArticle.documentId);
+      }
+      navigate('/homePage')
+      console.log("fine")
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      setErrorComment("Failed to delete comment. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateComment = async (commentId: number, newContent: string) => {
+    const token = localStorage.getItem("token");
+
+    if (!commentId || !newContent.trim()) {
+      setErrorComment("Invalid comment ID or content.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setErrorComment(null);
+
+      await axios.put(
+        `https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/comments/${commentId}`,
+        {
+          data: {
+            content: newContent.trim(),
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Refresh comments after update
+      if (detailArticle?.documentId) {
+        await fetchingComments(detailArticle.documentId);
+      }
+    } catch (error) {
+      console.error("Error updating comment:", error);
+      setErrorComment("Failed to update comment. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -149,7 +243,7 @@ const DetaileArticle: React.FC = () => {
           }
         );
         setError(null);
-        navigate("/homePage"); 
+        navigate("/homePage");
       }
     } catch (error) {
       console.error("Error deleting article:", error);
@@ -168,11 +262,17 @@ const DetaileArticle: React.FC = () => {
   useEffect(() => {
     if (id) {
       fetchingDetail(id);
-      fetchingComments(id);
     }
   }, [id]);
 
-  console.log("detail", detailArticle)
+  useEffect(() => {
+    fetchingComments(detailArticle?.documentId);
+  }, [detailArticle?.documentId]);
+
+  console.log("comment", comments)
+
+  const article = JSON.parse(localStorage.getItem("article") ?? "null");
+  console.log(article.comments)
 
   if (loading) {
     return (
@@ -255,27 +355,53 @@ const DetaileArticle: React.FC = () => {
             </div>
 
             {/* Display Comments */}
-            {errorComment ? (
-              <div className="text-center py-4">
-                <Typography variant="h6" color="red">
-                  {errorComment}
-                </Typography>
-              </div>
-            ) : comments.length > 0 ? (
-              comments.map((comment) => (
-                <div key={comment.id} className="mt-4">
-                  <Typography variant="small" color="gray" className="font-normal">
-                    {comment.content}
-                  </Typography>
-                  <Typography variant="small" color="gray" className="font-light">
-                    {new Date(comment.createdAt).toLocaleString()}
+            
+              {!errorComment ? (
+                <div className="text-center py-4">
+                  <Typography variant="h6" color="red">
+                    {errorComment}
                   </Typography>
                 </div>
-              ))
-            ) : (
-              <Typography variant="small" color="gray" className="font-normal">
-                No comments yet.
-              </Typography>
+              ) : article?.comments && article.comments.length > 0 ? (
+                article.comments.map((comment: any) => (
+                  <div key={comment.id} className="mt-4">
+                    <Typography variant="small" color="gray" className="font-normal text-left">
+                      {comment.content}
+                    </Typography>
+                    <Typography variant="small" color="gray" className="font-light text-left">
+                      {new Date(comment.createdAt).toLocaleString()}
+                    </Typography>
+                    <div className="flex gap-2 mt-2">
+                      <Typography
+                        as="span"
+                        variant="small"
+                        color="black"
+                        className="font-normal cursor-pointer hover:underline"
+                        onClick={() => handleDeleteComment(comment?.documentId)}
+                      >
+                        Delete
+                      </Typography>
+                      <Typography
+                        as="span"
+                        variant="small"
+                        color="black"
+                        className="font-normal cursor-pointer hover:underline"
+                        onClick={() => {
+                          const newContent = prompt("Edit your comment:", comment.content);
+                          if (newContent !== null) {
+                            handleUpdateComment(comment.id, newContent);
+                          }
+                        }}
+                      >
+                        Edit
+                      </Typography>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <Typography variant="small" color="gray" className="font-normal">
+                  No comments yet.
+                </Typography>
             )}
           </CardBody>
         </Card>
