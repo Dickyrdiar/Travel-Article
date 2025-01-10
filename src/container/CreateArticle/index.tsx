@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
- 
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardHeader,
@@ -13,17 +13,25 @@ import {
 import Input from "../../components/input";
 
 const CreateArticle: React.FC = () => {
-  const [selectedCategory, setSelectedCategory] = useState<number>(2); // Default selected category
+  const [selectedCategory, setSelectedCategory] = useState<number>(2);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [coverImageUrl, setCoverImageUrl] = useState<string>("");
-  const [categories, setCategories] = useState<any[]>([]); // State to store fetched categories
-  const [imageFile, setImageFile] = useState<File | null>(null); // State to store the selected image file
+  const [categories, setCategories] = useState<any[]>([]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [newCategoryName, setNewCategoryName] = useState<string>("");
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null); // State to store error messages
 
   const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+
+  // Cloudinary configuration
+  const cloudName = "dr6grbo0p";
+  const apiKey = "194188655976336";
+  const uploadPreset = "ml_default";
 
   useEffect(() => {
-    // Fetch categories from the API
     axios
       .get("https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/categories", {
         headers: {
@@ -31,8 +39,7 @@ const CreateArticle: React.FC = () => {
         },
       })
       .then((response) => {
-        console.log(response?.data?.data, "response");
-        setCategories(response?.data?.data); // Store fetched categories in state
+        setCategories(response?.data?.data);
       })
       .catch((error) => {
         console.error("There was an error fetching the categories!", error);
@@ -42,49 +49,99 @@ const CreateArticle: React.FC = () => {
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
-      setImageFile(file); // Store the selected file in state
-      setCoverImageUrl(URL.createObjectURL(file)); // Preview the image (optional)
+      setImageFile(file);
+      setCoverImageUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const uploadImageToCloudinary = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", uploadPreset);
+    formData.append("api_key", apiKey);
+
+    try {
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data.secure_url;
+    } catch (error) {
+      console.error("Error uploading image to Cloudinary:", error);
+      throw error;
+    }
+  };
+
+  const handleCreateCategory = async () => {
+    if (!newCategoryName) {
+      alert("Please enter a category name.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/categories",
+        {
+          data: {
+            name: newCategoryName,
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const newCategory = response.data.data;
+      setCategories([...categories, newCategory]);
+      setSelectedCategory(newCategory.id);
+      setShowNewCategoryInput(false);
+      setNewCategoryName("");
+    } catch (error) {
+      console.error("There was an error creating the category!", error);
     }
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setError(null); // Reset error state before submission
 
-    let imageUrl = coverImageUrl;
-
-    // If an image file is selected, upload it to the server
-    if (imageFile) {
-      const formData = new FormData();
-      formData.append("file", imageFile);
-
-      try {
-        const uploadResponse = await axios.post(
-          "https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/upload", // Replace with your image upload endpoint
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        imageUrl = uploadResponse.data.url; // Assuming the response contains the image URL
-      } catch (error) {
-        console.error("There was an error uploading the image!", error);
-        return;
-      }
+    // Validate required fields
+    if (!title || !description || !imageFile) {
+      setError("Please fill in all required fields.");
+      return;
     }
 
-    const articleData = {
-      data: {
-        title: title,
-        description: description,
-        cover_image_url: imageUrl, // Use the uploaded image URL
-        category: selectedCategory.toString(), // Use the selected category
-      },
-    };
+    let imageUrl = "";
 
     try {
+      // Upload image to Cloudinary
+      if (imageFile) {
+        imageUrl = await uploadImageToCloudinary(imageFile);
+        console.log("Image uploaded successfully. URL:", imageUrl);
+      } else {
+        setError("No image file selected.");
+        return;
+      }
+
+      // Prepare article data
+      const articleData = {
+        data: {
+          title: title,
+          description: description,
+          cover_image_url: imageUrl,
+          category: selectedCategory.toString(),
+        },
+      };
+
+      // Post article data to the API
       const response = await axios.post(
         "https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/articles",
         articleData,
@@ -97,7 +154,19 @@ const CreateArticle: React.FC = () => {
       );
 
       console.log("Article created successfully:", response.data);
-    } catch (error) {
+      navigate("/homePage"); // Redirect to homepage after successful creation
+    } catch (error: any) {
+      // Handle API errors
+      if (error.response) {
+        // Server responded with an error status code (e.g., 400, 401, 500)
+        setError(`Error: ${error.response.data.message || "Failed to create article."}`);
+      } else if (error.request) {
+        // No response received from the server
+        setError("Network error. Please check your connection and try again.");
+      } else {
+        // Something else went wrong
+        setError("An unexpected error occurred. Please try again.");
+      }
       console.error("There was an error creating the article!", error);
     }
   };
@@ -116,6 +185,13 @@ const CreateArticle: React.FC = () => {
         </Typography>
       </CardHeader>
       <CardBody className="flex flex-col gap-4 mt-[-30px]">
+        {/* Display error message if there's an error */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <div className="flex justify-between gap-4 w-[100%]">
             <div className="w-[50%]">
@@ -129,7 +205,6 @@ const CreateArticle: React.FC = () => {
                 onChange={(e) => setTitle(e.target.value)}
               />
             </div>
-
 
             <div className="mt-4 w-[50%] h-[20%]">
               <Typography className="text-md text-left font-bold text-text-primary">
@@ -159,6 +234,7 @@ const CreateArticle: React.FC = () => {
                         accept="image/*"
                         onChange={handleImageChange}
                         className="hidden"
+                        required
                       />
                     </label>
                   </>
@@ -175,13 +251,10 @@ const CreateArticle: React.FC = () => {
               size="lg"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="h-[100px]" // Adjusted height
+              className="h-[100px]"
               required
             />
           </div>
-
-          {/* Image Upload */}
-         
 
           {/* Category Dropdown */}
           <div className="mt-[20px]">
@@ -191,15 +264,41 @@ const CreateArticle: React.FC = () => {
             <select
               id="category"
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(Number(e.target.value))}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-gray-800  sm:text-sm"
+              onChange={(e) => {
+                if (e.target.value === "new") {
+                  setShowNewCategoryInput(true);
+                } else {
+                  setSelectedCategory(Number(e.target.value));
+                  setShowNewCategoryInput(false);
+                }
+              }}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-gray-800 sm:text-sm"
             >
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
-                  {category.name} {/* Assuming the category name is in `attributes.name` */}
+                  {category.name}
                 </option>
               ))}
+              <option value="new">Add New Category</option>
             </select>
+
+            {showNewCategoryInput && (
+              <div className="mt-2">
+                <Input
+                  size="medium"
+                  value={newCategoryName}
+                  placeholder="New Category Name"
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                />
+                <Button
+                  onClick={handleCreateCategory}
+                  variant="gradient"
+                  className="mt-2"
+                >
+                  Add Category
+                </Button>
+              </div>
+            )}
           </div>
 
           <Button type="submit" variant="gradient" fullWidth className="mt-4 w-[90px]">
