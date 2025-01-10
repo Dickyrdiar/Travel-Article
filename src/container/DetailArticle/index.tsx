@@ -255,7 +255,7 @@ const DetaileArticle: React.FC = () => {
 
   const handleUpdate = () => {
     if (detailArticle) {
-      navigate(`/update-article/${detailArticle.documentId}`);
+      navigate(`/updateArticle/${detailArticle.documentId}`);
     }
   };
 
