@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom"; // Import useParams
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Card,
   CardHeader,
@@ -59,10 +59,10 @@ const CreateArticle: React.FC = () => {
         })
         .then((response) => {
           const article = response.data.data;
-          setTitle(article.attributes.title);
-          setDescription(article.attributes.description);
-          setCoverImageUrl(article.attributes.cover_image_url);
-          setSelectedCategory(article.attributes.category.id);
+          setTitle(article.title);
+          setDescription(article.description);
+          setCoverImageUrl(article.cover_image_url);
+          setSelectedCategory(article.category?.id || 2); // Default to category 2 if no category is set
         })
         .catch((error) => {
           console.error("There was an error fetching the article!", error);
@@ -158,7 +158,7 @@ const CreateArticle: React.FC = () => {
           title: title,
           description: description,
           cover_image_url: imageUrl,
-          category: selectedCategory.toString(),
+          category: selectedCategory,
         },
       };
 

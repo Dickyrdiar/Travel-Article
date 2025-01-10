@@ -36,8 +36,10 @@ const ArticleList: React.FC<Props> = ({ articles }) => {
   const articlesToDisplay = articles ?? [];
   const navigate = useNavigate();
 
-  const handleDetail = (id: any): void => {
+  const handleDetail = (id: any, article: any): void => {
     navigate(`/detail-article/${id}`);
+    localStorage.setItem("article", JSON.stringify(article))
+    console.log("article", article)
   };
 
   return (
@@ -46,7 +48,7 @@ const ArticleList: React.FC<Props> = ({ articles }) => {
         <Card
           key={article.id}
           className="w-full sm:w-72 lg:w-96 cursor-pointer"
-          onClick={() => handleDetail(article.documentId)}
+          onClick={() => handleDetail(article?.documentId, article)}
         >
           <CardHeader color="white" className="relative h-56 mt-[12px]">
             <img
