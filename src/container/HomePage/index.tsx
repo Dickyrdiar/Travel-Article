@@ -11,6 +11,20 @@ interface Category {
   description: string | null;
 }
 
+interface User {
+  id: number;
+  documentId: string;
+  username: string;
+  email: string;
+  provider: string;
+  confirmed: boolean;
+  blocked: boolean;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  publishedAt: string; // ISO date string
+  locale: string | null;
+}
+
 interface Article {
   id: number;
   documentId: string;
@@ -24,6 +38,7 @@ interface Article {
   localizations: any[];
   publishedAt: string;
   updatedAt: string;
+  user: User
 }
 
 const HomePage: React.FC = () => {
