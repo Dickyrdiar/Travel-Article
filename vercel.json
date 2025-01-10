@@ -1,5 +1,32 @@
 {
-  "rewrites":  [
-    {"source": "/(.*)", "destination": "/"}
+  "routes": [
+    {
+      "src": "/statistic",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/createArticle",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/updateArticle/:id",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/homePage",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/detailArticle/:id",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/category",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/(.*)", 
+      "dest": "/index.html"
+    }
   ]
 }
