@@ -105,7 +105,7 @@ type NavListItem = {
 };
 
 const navListItems: NavListItem[] = [
-  { label: "Create Article", icon: DocumentIcon, link: "/create-article" },
+  { label: "Create Article", icon: DocumentIcon, link: "/createArticle" },
   // { label: "Category", icon: CubeTransparentIcon, link: "/category" },
   { label: "Statistic", icon: ChartBarIcon, link: "/statistic" },
   // Add other items as necessary

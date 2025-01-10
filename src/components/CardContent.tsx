@@ -37,7 +37,7 @@ const ArticleList: React.FC<Props> = ({ articles }) => {
   const navigate = useNavigate();
 
   const handleDetail = (id: any, article: any): void => {
-    navigate(`/detail-article/${id}`);
+    navigate(`/detailArticle/${id}`);
     localStorage.setItem("article", JSON.stringify(article))
     console.log("article", article)
   };

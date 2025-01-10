@@ -22,10 +22,10 @@ function App() {
           <Route element={<PrivateRoute />}>
             <Route element={<Wrapper />}>
               <Route path='/statistic' Component={Static} />
-              <Route path='/create-article' Component={CreateArticle} />
-              <Route path='/update-article/:id' Component={UpdateArticle} />
+              <Route path='/createArticle' Component={CreateArticle} />
+              <Route path='/updateArticle/:id' Component={UpdateArticle} />
               <Route path='/homePage' Component={HomePage} />
-              <Route path='/detail-article/:id' Component={DetaileArticle} />
+              <Route path='/detailArticle/:id' Component={DetaileArticle} />
               <Route path='/category' Component={Categoty} />
             </Route>
           </Route>
