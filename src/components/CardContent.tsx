@@ -12,19 +12,34 @@ interface Category {
   description: string | null;
 }
 
+interface User {
+  id: number;
+  documentId: string;
+  username: string;
+  email: string;
+  provider: string;
+  confirmed: boolean;
+  blocked: boolean;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  publishedAt: string; // ISO date string
+  locale: string | null;
+}
+
 interface Article {
   id: number;
   documentId: string;
   title: string;
   description: string;
-  category: Category | null; 
-  comments: any[]; 
+  category: Category | null;
+  comments: any[];
   cover_image_url: string;
   createdAt: string;
   locale: string | null;
   localizations: any[];
   publishedAt: string;
   updatedAt: string;
+  user: User; // Add the user field
 }
 
 type Props = {
@@ -38,8 +53,8 @@ const ArticleList: React.FC<Props> = ({ articles }) => {
 
   const handleDetail = (id: any, article: any): void => {
     navigate(`/detailArticle/${id}`);
-    localStorage.setItem("article", JSON.stringify(article))
-    console.log("article", article)
+    localStorage.setItem("article", JSON.stringify(article));
+    console.log("article", article);
   };
 
   return (
@@ -58,11 +73,22 @@ const ArticleList: React.FC<Props> = ({ articles }) => {
             />
           </CardHeader>
           <CardBody>
+            <div className="mt-4 p-4 flex">
+              <Typography variant="small" color="gray" className="font-medium">
+                Posted by:&nbsp;
+              </Typography>
+              <Typography variant="small" color="blue-gray" className="font-normal">
+                {article.user.username}
+              </Typography>
+            </div>
+
+
             <Typography variant="h5" color="blue-gray" className="mb-2">
               {article.title}
             </Typography>
             <Typography>{article.description}</Typography>
-            <div className="flex justify-between">
+
+            <div className="flex justify-between mt-[20px]">
               <div className="mt-2">
                 {/* Conditionally render the category chip */}
                 {article.category?.name ? (
@@ -75,7 +101,7 @@ const ArticleList: React.FC<Props> = ({ articles }) => {
                   </span>
                 )}
               </div>
-              
+
               <div className="flex items-center mt-2 text-sm text-gray-600">
                 <FaComments className="mr-1" /> {/* Comment icon */}
                 <Typography className="text-gray-500">
@@ -83,7 +109,6 @@ const ArticleList: React.FC<Props> = ({ articles }) => {
                 </Typography>
               </div>
             </div>
-           
           </CardBody>
         </Card>
       ))}

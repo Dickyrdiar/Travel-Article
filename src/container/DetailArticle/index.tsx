@@ -1,4 +1,3 @@
- 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -13,7 +12,6 @@ import {
   Textarea,
 } from "@material-tailwind/react";
 import { ConfirmationDialog } from "../../components/Modal";
-
 
 interface ArticleResponse {
   cover_image_url: string;
@@ -42,6 +40,8 @@ const DetaileArticle: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [errorComment, setErrorComment] = useState<string | null>(null);
   const [commentContent, setCommentContent] = useState<string>(""); // State for comment input
+  const [editCommentId, setEditCommentId] = useState<number | null>(null); // State for editing comment ID
+  const [editCommentContent, setEditCommentContent] = useState<string>(""); // State for editing comment content
   const [open, setOpen] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
@@ -293,9 +293,9 @@ const DetaileArticle: React.FC = () => {
   }
 
   return (
-    <div className="p-4">
+    <div className="p-4 max-w-full w-[850px]"> {/* Ensure the container takes full width */}
       {detailArticle ? (
-        <Card className="max-w-full mx-auto overflow-hidden">
+        <Card className="w-full mx-auto overflow-hidden"> {/* Remove max-w-full */}
           <CardHeader
             floated={false}
             shadow={false}
@@ -308,7 +308,7 @@ const DetaileArticle: React.FC = () => {
               className="w-full h-auto md:h-[400px] object-cover"
             />
           </CardHeader>
-          <CardBody>
+          <CardBody className="w-full"> {/* Ensure CardBody takes full width */}
             <Typography variant="h4" color="blue-gray" className="mb-4">
               {detailArticle.title}
             </Typography>
@@ -316,7 +316,7 @@ const DetaileArticle: React.FC = () => {
               {detailArticle.description}
             </Typography>
           </CardBody>
-          <CardFooter className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <CardFooter className="flex flex-col md:flex-row items-center justify-between gap-4 w-full"> {/* Ensure CardFooter takes full width */}
             <div className="flex gap-2">
               <Button color="black" onClick={handleUpdate}>
                 Update
@@ -326,18 +326,18 @@ const DetaileArticle: React.FC = () => {
               </Button>
             </div>
           </CardFooter>
-
+    
           {/* Horizontal Line */}
-          <hr className="my-4 border-gray-700" />
-
+          <hr className="my-4 border-gray-700 w-full" /> {/* Ensure the line spans full width */}
+    
           {/* Comments Section */}
-          <CardBody>
+          <CardBody className="w-full"> {/* Ensure CardBody takes full width */}
             <Typography variant="h5" color="blue-gray" className="mb-4">
               Comments
             </Typography>
-
+    
             {/* Comment Input Form */}
-            <div className="mt-4">
+            <div className="mt-4 w-full"> {/* Ensure the form takes full width */}
               <Textarea
                 label="Write a comment..."
                 value={commentContent}
@@ -346,62 +346,83 @@ const DetaileArticle: React.FC = () => {
               />
               <Button
                 color="black"
-                className="mt-2 w-full md:w-auto"
+                className="mt-2 w-[340px] items-left" 
                 onClick={handlePostComment}
                 disabled={loading}
               >
                 {loading ? "Posting..." : "Post Comment"}
               </Button>
             </div>
-
+    
             {/* Display Comments */}
-            
-              {!errorComment ? (
-                <div className="text-center py-4">
-                  <Typography variant="h6" color="red">
-                    {errorComment}
-                  </Typography>
-                </div>
-              ) : article?.comments && article.comments.length > 0 ? (
-                article.comments.map((comment: any) => (
-                  <div key={comment.id} className="mt-4">
-                    <Typography variant="small" color="gray" className="font-normal text-left">
-                      {comment.content}
-                    </Typography>
-                    <Typography variant="small" color="gray" className="font-light text-left">
-                      {new Date(comment.createdAt).toLocaleString()}
-                    </Typography>
-                    <div className="flex gap-2 mt-2">
-                      <Typography
-                        as="span"
-                        variant="small"
-                        color="black"
-                        className="font-normal cursor-pointer hover:underline"
-                        onClick={() => handleDeleteComment(comment?.documentId)}
-                      >
-                        Delete
-                      </Typography>
-                      <Typography
-                        as="span"
-                        variant="small"
-                        color="black"
-                        className="font-normal cursor-pointer hover:underline"
-                        onClick={() => {
-                          const newContent = prompt("Edit your comment:", comment.content);
-                          if (newContent !== null) {
-                            handleUpdateComment(comment.id, newContent);
-                          }
-                        }}
-                      >
-                        Edit
-                      </Typography>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <Typography variant="small" color="gray" className="font-normal">
-                  No comments yet.
+            {!errorComment ? (
+              <div className="text-center py-4">
+                <Typography variant="h6" color="red">
+                  {errorComment}
                 </Typography>
+              </div>
+            ) : article?.comments && article.comments.length > 0 ? (
+              article.comments.map((comment: any) => (
+                <div key={comment.id} className="mt-4 w-full"> {/* Ensure each comment takes full width */}
+                  {editCommentId === comment.id ? (
+                    <div className="w-full"> {/* Ensure the edit section takes full width */}
+                      <Textarea
+                        label="Edit your comment..."
+                        value={editCommentContent}
+                        onChange={(e) => setEditCommentContent(e.target.value)}
+                        className="w-full"
+                      />
+                      <Button
+                        color="black"
+                        className="mt-2 w-full" 
+                        onClick={() => {
+                          handleUpdateComment(comment.id, editCommentContent);
+                          setEditCommentId(null);
+                        }}
+                        disabled={loading}
+                      >
+                        {loading ? "Updating..." : "Update Comment"}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="w-full"> {/* Ensure the comment content takes full width */}
+                      <Typography variant="small" color="gray" className="font-normal text-left">
+                        {comment.content}
+                      </Typography>
+                      <Typography variant="small" color="gray" className="font-light text-left">
+                        {new Date(comment.createdAt).toLocaleString()}
+                      </Typography>
+                      <div className="flex gap-2 mt-2">
+                        <Typography
+                          as="span"
+                          variant="small"
+                          color="black"
+                          className="font-normal cursor-pointer hover:underline"
+                          onClick={() => handleDeleteComment(comment?.documentId)}
+                        >
+                          Delete
+                        </Typography>
+                        <Typography
+                          as="span"
+                          variant="small"
+                          color="black"
+                          className="font-normal cursor-pointer hover:underline"
+                          onClick={() => {
+                            setEditCommentId(comment.id);
+                            setEditCommentContent(comment.content);
+                          }}
+                        >
+                          Edit
+                        </Typography>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : (
+              <Typography variant="small" color="gray" className="font-normal">
+                No comments yet.
+              </Typography>
             )}
           </CardBody>
         </Card>
@@ -412,7 +433,7 @@ const DetaileArticle: React.FC = () => {
           </Typography>
         </div>
       )}
-
+    
       <ConfirmationDialog
         open={open}
         onClose={() => setOpen(!open)}
