@@ -112,88 +112,86 @@ const Static: React.FC = () => {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5); // Top 5 most used tags
 
-    const TABLE_HEAD = ["Tag Name", "Count"];
+  const TABLE_HEAD = ["Tag Name", "Count"];
 
   return (
-    <div className="h-full w-full">
-      <div className="w-[1400px] h-[90px]">
-        <h1 className="text-xl font-bold">Dashboard Statistic</h1>
-        <div className="my-4">
-          {loading ? (
-            <div>Loading...</div>
-          ) : (
-            <div className="h-screen w-full flex flex-col justify-center items-center">
-              <div className="mb-6 w-full max-w-4xl px-4">
-                <h2 className="text-lg font-semibold mt-20">Most Comments per Article</h2>
-                <div className="h-96">
-                  <Bar data={commentChartData} />
-                </div>
-              </div>
-
-              <div className="my-4">
-                {loading ? (
-                  <div>Loading...</div>
-                ) : (
-                  <div className="w-full max-w-4xl px-4 mt-[-9]">
-                    <h2 className="text-lg font-semibold mb-4">Most Used Tags</h2>
-                    <Card className="overflow-scroll w-[530px] h-[20%]">
-                      <table className="w-full min-w-max table-auto text-left">
-                        <thead>
-                          <tr>
-                            {TABLE_HEAD.map((head) => (
-                              <th
-                                key={head}
-                                className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
-                              >
-                                <Typography
-                                  variant="small"
-                                  color="blue-gray"
-                                  className="font-normal leading-none opacity-70"
-                                >
-                                  {head}
-                                </Typography>
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {sortedTags.map(([tag, count], index) => {
-                            const isLast = index === sortedTags.length - 1;
-                            const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
-
-                            return (
-                              <tr key={tag}>
-                                <td className={classes}>
-                                  <Typography
-                                    variant="small"
-                                    color="blue-gray"
-                                    className="font-normal"
-                                  >
-                                    {tag}
-                                  </Typography>
-                                </td>
-                                <td className={classes}>
-                                  <Typography
-                                    variant="small"
-                                    color="blue-gray"
-                                    className="font-normal"
-                                  >
-                                    {count}
-                                  </Typography>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </Card>
-                  </div>
-                )}
-              </div>
+    <div className="p-4">
+      <h1 className="text-xl font-bold mb-4">Dashboard Statistic</h1>
+      {loading ? (
+        <div>Loading...</div>
+      ) : (
+        <div className="flex flex-col items-center">
+          {/* Most Comments per Article Chart */}
+          <div className="w-full max-w-4xl mb-8">
+            <h2 className="text-lg font-semibold mb-4">Most Comments per Article</h2>
+            <div className="w-full h-64 md:h-96">
+              <Bar
+                data={commentChartData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                }}
+              />
             </div>
-          )}
+          </div>
+
+          {/* Most Used Tags Table */}
+          <div className="w-full max-w-4xl">
+            <h2 className="text-lg font-semibold mb-4">Most Used Tags</h2>
+            <Card className="overflow-x-auto">
+              <table className="w-full min-w-max table-auto text-left">
+                <thead>
+                  <tr>
+                    {TABLE_HEAD.map((head) => (
+                      <th
+                        key={head}
+                        className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
+                      >
+                        <Typography
+                          variant="small"
+                          color="blue-gray"
+                          className="font-normal leading-none opacity-70"
+                        >
+                          {head}
+                        </Typography>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedTags.map(([tag, count], index) => {
+                    const isLast = index === sortedTags.length - 1;
+                    const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
+
+                    return (
+                      <tr key={tag}>
+                        <td className={classes}>
+                          <Typography
+                            variant="small"
+                            color="blue-gray"
+                            className="font-normal"
+                          >
+                            {tag}
+                          </Typography>
+                        </td>
+                        <td className={classes}>
+                          <Typography
+                            variant="small"
+                            color="blue-gray"
+                            className="font-normal"
+                          >
+                            {count}
+                          </Typography>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </Card>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

@@ -21,29 +21,30 @@ import {
   PowerIcon,
   Bars2Icon,
   DocumentIcon,
-  ChartBarIcon
+  ChartBarIcon,
 } from "@heroicons/react/24/solid";
 import { useNavigate } from "react-router-dom";
-
 
 // Profile Menu component
 type ProfileMenuItem = {
   label: string;
   icon: React.ElementType;
+  onClick?: () => void; // Add onClick handler for menu items
 };
 
-const profileMenuItems: ProfileMenuItem[] = [
-  { label: "My Profile", icon: UserCircleIcon },
-  { label: "Edit Profile", icon: Cog6ToothIcon },
-  { label: "Inbox", icon: InboxArrowDownIcon },
-  { label: "Help", icon: LifebuoyIcon },
-  { label: "Sign Out", icon: PowerIcon },
-];
-
-function ProfileMenu() {
+function ProfileMenu({ handleLogout }: { handleLogout: () => void }) {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 
   const closeMenu = () => setIsMenuOpen(false);
+
+  // Define profileMenuItems inside the ProfileMenu component
+  const profileMenuItems: ProfileMenuItem[] = [
+    { label: "My Profile", icon: UserCircleIcon },
+    { label: "Edit Profile", icon: Cog6ToothIcon },
+    { label: "Inbox", icon: InboxArrowDownIcon },
+    { label: "Help", icon: LifebuoyIcon },
+    { label: "Sign Out", icon: PowerIcon, onClick: handleLogout }, // Use handleLogout from props
+  ];
 
   return (
     <Menu open={isMenuOpen} handler={setIsMenuOpen} placement="bottom-end">
@@ -69,12 +70,15 @@ function ProfileMenu() {
         </Button>
       </MenuHandler>
       <MenuList className="p-1">
-        {profileMenuItems.map(({ label, icon }, key) => {
+        {profileMenuItems.map(({ label, icon, onClick }, key) => {
           const isLastItem = key === profileMenuItems.length - 1;
           return (
             <MenuItem
               key={label}
-              onClick={closeMenu}
+              onClick={() => {
+                closeMenu();
+                if (onClick) onClick(); // Call onClick handler if it exists
+              }}
               className={`flex items-center gap-2 rounded ${
                 isLastItem
                   ? "hover:bg-red-500/10 focus:bg-red-500/10 active:bg-red-500/10"
@@ -101,13 +105,11 @@ function ProfileMenu() {
   );
 }
 
-
-
 // Nav List component
 type NavListItem = {
   label: string;
   icon: React.ElementType;
-  link: string
+  link: string;
 };
 
 const navListItems: NavListItem[] = [
@@ -124,7 +126,7 @@ function NavList() {
         <Typography
           key={label}
           as="a"
-          href={link}  
+          href={link}
           variant="small"
           color="gray"
           className="font-medium text-[#ffff]"
@@ -139,23 +141,21 @@ function NavList() {
   );
 }
 
-
 export function ComplexNavbar() {
   const [isNavOpen, setIsNavOpen] = useState<boolean>(false);
   const toggleIsNavOpen = () => setIsNavOpen((cur) => !cur);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
-    window.addEventListener(
-      "resize",
-      () => window.innerWidth >= 960 && setIsNavOpen(false),
-    );
+    window.addEventListener("resize", () => {
+      if (window.innerWidth >= 960) setIsNavOpen(false);
+    });
   }, []);
 
   const handleLogout = (): void => {
-    localStorage.removeItem("token")
-    navigate('/')
-  }
+    localStorage.removeItem("token");
+    navigate("/");
+  };
 
   return (
     <Navbar className="mx-auto max-w-screen-xl bg-[#000000] p-2 lg:rounded-full lg:pl-6 fixed w-full z-10">
@@ -180,10 +180,19 @@ export function ComplexNavbar() {
           <Bars2Icon className="h-6 w-6" />
         </IconButton>
 
-          <Button onClick={() => handleLogout} className="items-end flex justify-end" color="white" size="sm" variant="text">
-            <span>Log out</span>
-          </Button>
-        <ProfileMenu />
+        {/* Logout Button */}
+        <Button
+          onClick={handleLogout} // Correctly call handleLogout
+          className="items-end flex justify-end"
+          color="white"
+          size="sm"
+          variant="text"
+        >
+          <span>Log out</span>
+        </Button>
+
+        {/* Profile Menu */}
+        <ProfileMenu handleLogout={handleLogout} />
       </div>
       <MobileNav open={isNavOpen} className="overflow-scroll">
         <NavList />
