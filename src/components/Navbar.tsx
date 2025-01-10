@@ -12,12 +12,8 @@ import {
   IconButton,
 } from "@material-tailwind/react";
 import {
-  CubeTransparentIcon,
-  UserCircleIcon,
+  // CubeTransparentIcon,
   ChevronDownIcon,
-  Cog6ToothIcon,
-  InboxArrowDownIcon,
-  LifebuoyIcon,
   PowerIcon,
   Bars2Icon,
   DocumentIcon,
@@ -39,10 +35,6 @@ function ProfileMenu({ handleLogout }: { handleLogout: () => void }) {
 
   // Define profileMenuItems inside the ProfileMenu component
   const profileMenuItems: ProfileMenuItem[] = [
-    { label: "My Profile", icon: UserCircleIcon },
-    { label: "Edit Profile", icon: Cog6ToothIcon },
-    { label: "Inbox", icon: InboxArrowDownIcon },
-    { label: "Help", icon: LifebuoyIcon },
     { label: "Sign Out", icon: PowerIcon, onClick: handleLogout }, // Use handleLogout from props
   ];
 
@@ -114,7 +106,7 @@ type NavListItem = {
 
 const navListItems: NavListItem[] = [
   { label: "Create Article", icon: DocumentIcon, link: "/create-article" },
-  { label: "Category", icon: CubeTransparentIcon, link: "/category" },
+  // { label: "Category", icon: CubeTransparentIcon, link: "/category" },
   { label: "Statistic", icon: ChartBarIcon, link: "/statistic" },
   // Add other items as necessary
 ];
@@ -181,7 +173,7 @@ export function ComplexNavbar() {
         </IconButton>
 
         {/* Logout Button */}
-        <Button
+        {/* <Button
           onClick={handleLogout} // Correctly call handleLogout
           className="items-end flex justify-end"
           color="white"
@@ -189,7 +181,7 @@ export function ComplexNavbar() {
           variant="text"
         >
           <span>Log out</span>
-        </Button>
+        </Button> */}
 
         {/* Profile Menu */}
         <ProfileMenu handleLogout={handleLogout} />

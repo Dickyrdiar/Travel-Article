@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import React, { useEffect, useState, useCallback } from "react";
@@ -18,7 +19,7 @@ interface Article {
   category: Category;
   comments: any[];
   cover_image_url: string;
-  createdAt: string;
+  createdAt: string; // Ensure this field is available in your API response
   locale: string | null;
   localizations: any[];
   publishedAt: string;
@@ -33,7 +34,8 @@ const HomePage: React.FC = () => {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [searchTitle, setSearchTitle] = useState<string>("");
 
-  // Fetch articles with optional title search
+  const defaultImageUrl = "https://via.placeholder.com/300";
+
   const fetchArticles = useCallback(async (page: number, title: string) => {
     const url = `https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/articles?populate=*&pagination[page]=${page}&pagination[pageSize]=10${title ? `&filters[title][$containsi]=${title}` : ""}`;
     const token = localStorage.getItem("token");
@@ -46,12 +48,21 @@ const HomePage: React.FC = () => {
         },
       });
 
-      const newArticles = response.data.data;
-      // Reset articles if it's a new search or first page
+      // Map articles and set default image if cover_image_url is null
+      const newArticles = response.data.data.map((article: Article) => ({
+        ...article,
+        cover_image_url: article.cover_image_url || defaultImageUrl,
+      }));
+
+      // Sort articles by createdAt date in descending order (newest first)
+      const sortedArticles = newArticles.sort((a: Article, b: Article) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+
       if (page === 1) {
-        setArticles(newArticles);
+        setArticles(sortedArticles);
       } else {
-        setArticles((prev) => [...prev, ...newArticles]);
+        setArticles((prev) => [...prev, ...sortedArticles]);
       }
       setHasMore(newArticles.length > 0);
     } catch (err) {

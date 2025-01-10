@@ -9,6 +9,8 @@ import Wrapper from './container/Wrapper';
 import DetaileArticle from './container/DetailArticle';
 import Static from './container/Statistic';
 import Categoty from './container/Category';
+import CreateArticle from './container/CreateArticle';
+import UpdateArticle from './container/Update';
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
           <Route element={<PrivateRoute />}>
             <Route element={<Wrapper />}>
               <Route path='/statistic' Component={Static} />
+              <Route path='/create-article' Component={CreateArticle} />
+              <Route path='/update-article/:id' Component={UpdateArticle} />
               <Route path='/homePage' Component={HomePage} />
               <Route path='/detail-article/:id' Component={DetaileArticle} />
               <Route path='/category' Component={Categoty} />

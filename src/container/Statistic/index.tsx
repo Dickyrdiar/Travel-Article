@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
@@ -110,21 +111,21 @@ const Static: React.FC = () => {
   // Prepare tag data for display (most used tags)
   const sortedTags = Object.entries(tagCounts)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 5); // Top 5 most used tags
+    .slice(0, 5); 
 
   const TABLE_HEAD = ["Tag Name", "Count"];
 
   return (
-    <div className="p-4">
+    <div className="p-4 w-full">
       <h1 className="text-xl font-bold mb-4">Dashboard Statistic</h1>
       {loading ? (
         <div>Loading...</div>
       ) : (
-        <div className="flex flex-col items-center">
+        <div className="w-full max-w-[900px]">
           {/* Most Comments per Article Chart */}
-          <div className="w-full max-w-4xl mb-8">
+          <div className="w-full mb-8">
             <h2 className="text-lg font-semibold mb-4">Most Comments per Article</h2>
-            <div className="w-full h-64 md:h-96">
+            <div className="w-[106%] h-64 md:h-96">
               <Bar
                 data={commentChartData}
                 options={{
@@ -136,9 +137,9 @@ const Static: React.FC = () => {
           </div>
 
           {/* Most Used Tags Table */}
-          <div className="w-full max-w-4xl">
+          <div className="w-full">
             <h2 className="text-lg font-semibold mb-4">Most Used Tags</h2>
-            <Card className="overflow-x-auto">
+            <Card className="w-full overflow-x-auto">
               <table className="w-full min-w-max table-auto text-left">
                 <thead>
                   <tr>

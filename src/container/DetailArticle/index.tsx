@@ -95,21 +95,26 @@ const DetaileArticle: React.FC = () => {
 
   const handlePostComment = async () => {
     const token = localStorage.getItem("token");
-
-    if (!commentContent.trim()) {
+  
+    if (!commentContent || !commentContent.trim()) {
       setErrorComment("Comment cannot be empty.");
       return;
     }
-
+  
+    if (!detailArticle) {
+      setErrorComment("Article not found. Cannot post comment.");
+      return;
+    }
+  
     try {
       setLoading(true);
       setErrorComment(null);
-
+  
       const response = await axios.post(
         `https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/comments`,
         {
-          documentId: id, 
-          content: commentContent,
+          article: detailArticle.id, 
+          content: commentContent.trim(), 
         },
         {
           headers: {
@@ -117,9 +122,9 @@ const DetaileArticle: React.FC = () => {
           },
         }
       );
-
-      await fetchingComments(id);
-      setCommentContent(""); 
+  
+      await fetchingComments(id); 
+      setCommentContent(""); //
       console.log("response", response);
     } catch (error) {
       console.error("Error posting comment:", error);
