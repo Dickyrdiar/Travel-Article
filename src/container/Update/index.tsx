@@ -24,6 +24,7 @@ const CreateArticle: React.FC = () => {
   const [showNewCategoryInput, setShowNewCategoryInput] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isEditMode, setIsEditMode] = useState<boolean>(false); // State to check if in edit mode
+  const [loading, setLoading] = useState<boolean>(false); // Loading state
 
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ const CreateArticle: React.FC = () => {
   const uploadPreset = "ml_default";
 
   useEffect(() => {
+    setLoading(true); // Set loading to true when fetching data
     // Fetch categories from the API
     axios
       .get("https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/categories", {
@@ -46,6 +48,9 @@ const CreateArticle: React.FC = () => {
       })
       .catch((error) => {
         console.error("There was an error fetching the categories!", error);
+      })
+      .finally(() => {
+        setLoading(false); // Set loading to false after fetching
       });
 
     // If in edit mode, fetch the existing article data
@@ -66,6 +71,9 @@ const CreateArticle: React.FC = () => {
         })
         .catch((error) => {
           console.error("There was an error fetching the article!", error);
+        })
+        .finally(() => {
+          setLoading(false); // Set loading to false after fetching
         });
     }
   }, [token, id]);
@@ -108,6 +116,7 @@ const CreateArticle: React.FC = () => {
     }
 
     try {
+      setLoading(true); // Set loading to true when creating a category
       const response = await axios.post(
         "https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/categories",
         {
@@ -130,6 +139,8 @@ const CreateArticle: React.FC = () => {
       setNewCategoryName("");
     } catch (error) {
       console.error("There was an error creating the category!", error);
+    } finally {
+      setLoading(false); // Set loading to false after creating
     }
   };
 
@@ -146,6 +157,8 @@ const CreateArticle: React.FC = () => {
     let imageUrl = coverImageUrl; // Use existing image URL if no new file is selected
 
     try {
+      setLoading(true); // Set loading to true during submission
+
       // Upload new image to Cloudinary if a file is selected
       if (imageFile) {
         imageUrl = await uploadImageToCloudinary(imageFile);
@@ -202,8 +215,19 @@ const CreateArticle: React.FC = () => {
         setError("An unexpected error occurred. Please try again.");
       }
       console.error("There was an error saving the article!", error);
+    } finally {
+      setLoading(false); // Set loading to false after submission
     }
   };
+
+  // Display loading spinner if loading is true
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="w-16 h-16 border-t-4 border-[#000000] border-solid rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <Card className="max-w-full w-[1080px] h-screen mx-auto overflow-hidden">
