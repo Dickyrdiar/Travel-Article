@@ -86,6 +86,8 @@ const DetaileArticle: React.FC = () => {
       console.log("response", response);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false)
     }
   };
 
