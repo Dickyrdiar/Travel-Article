@@ -140,7 +140,7 @@ const HomePage: React.FC = () => {
         </form>
       </div>
 
-      <div className="max-w-full w-[1200px] mt-[90px] overflow">
+      <div className="max-w-full w-[1200px] h-screen mt-[90px] overflow">
         {loading && page === 1 ? (
           <div>Loading...</div>
         ) : error ? (

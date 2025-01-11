@@ -58,22 +58,22 @@ const ArticleList: React.FC<Props> = ({ articles }) => {
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 px-4 sm:px-6 lg:px-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 sm:px-6 lg:px-8 mt-[35px]">
       {articlesToDisplay.map((article) => (
         <Card
           key={article.id}
-          className="w-full sm:w-72 lg:w-96 cursor-pointer hover:shadow-lg transition-shadow duration-300"
+          className="w-full cursor-pointer hover:shadow-lg transition-shadow duration-300 flex flex-col"
           onClick={() => handleDetail(article?.documentId, article)}
         >
-          <CardHeader color="white" className="relative h-56 mt-[12px]">
+          <CardHeader color="white" className="relative h-56 mt-5">
             <img
               src={article.cover_image_url}
               alt={`Image for ${article.title}`}
-              className="object-cover w-full h-full mt-6"
+              className="object-cover w-full h-full"
             />
           </CardHeader>
-          <CardBody>
-            <div className="mt-4 p-4 flex flex-col sm:flex-row sm:items-center">
+          <CardBody className="flex flex-col flex-grow">
+            <div className="mt-4 flex flex-col sm:flex-row sm:items-center">
               <Typography variant="small" color="gray" className="font-medium">
                 Posted by:&nbsp;
               </Typography>
@@ -85,7 +85,7 @@ const ArticleList: React.FC<Props> = ({ articles }) => {
             <Typography variant="h5" color="blue-gray" className="mb-2 text-lg sm:text-xl">
               {article.title}
             </Typography>
-            <Typography className="text-sm sm:text-base">
+            <Typography className="text-sm sm:text-base flex-grow">
               {article.description}
             </Typography>
 
