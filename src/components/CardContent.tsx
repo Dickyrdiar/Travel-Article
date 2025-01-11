@@ -58,11 +58,11 @@ const ArticleList: React.FC<Props> = ({ articles }) => {
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 px-4 sm:px-6 lg:px-8">
       {articlesToDisplay.map((article) => (
         <Card
           key={article.id}
-          className="w-full sm:w-72 lg:w-96 cursor-pointer"
+          className="w-full sm:w-72 lg:w-96 cursor-pointer hover:shadow-lg transition-shadow duration-300"
           onClick={() => handleDetail(article?.documentId, article)}
         >
           <CardHeader color="white" className="relative h-56 mt-[12px]">
@@ -73,7 +73,7 @@ const ArticleList: React.FC<Props> = ({ articles }) => {
             />
           </CardHeader>
           <CardBody>
-            <div className="mt-4 p-4 flex">
+            <div className="mt-4 p-4 flex flex-col sm:flex-row sm:items-center">
               <Typography variant="small" color="gray" className="font-medium">
                 Posted by:&nbsp;
               </Typography>
@@ -82,13 +82,14 @@ const ArticleList: React.FC<Props> = ({ articles }) => {
               </Typography>
             </div>
 
-
-            <Typography variant="h5" color="blue-gray" className="mb-2">
+            <Typography variant="h5" color="blue-gray" className="mb-2 text-lg sm:text-xl">
               {article.title}
             </Typography>
-            <Typography>{article.description}</Typography>
+            <Typography className="text-sm sm:text-base">
+              {article.description}
+            </Typography>
 
-            <div className="flex justify-between mt-[20px]">
+            <div className="flex flex-col sm:flex-row justify-between mt-4">
               <div className="mt-2">
                 {/* Conditionally render the category chip */}
                 {article.category?.name ? (

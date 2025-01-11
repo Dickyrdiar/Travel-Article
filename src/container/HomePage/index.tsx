@@ -124,7 +124,7 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full ">
       <div className="flex justify-end mt-[50px] relative">
         <form onSubmit={handleSearchSubmit} className="flex gap-2 top-4 right-4">
           <input
@@ -140,7 +140,7 @@ const HomePage: React.FC = () => {
         </form>
       </div>
 
-      <div className="w-[1200px] mt-[90px]">
+      <div className="max-w-full w-[1200px] mt-[90px] overflow">
         {loading && page === 1 ? (
           <div>Loading...</div>
         ) : error ? (

@@ -20,6 +20,11 @@ module.exports  = withMT({
         'black-medium': '#1a1a1a',
         'black-dark': '#000000',
       },
+
+      // fontFamily: {
+      //   inter: ['Inter', ...fontFamily.sans],
+      //   'dm-sans': ['DM Sans', ...fontFamily.sans],
+      // },
     },
    
   },

@@ -12,7 +12,6 @@ import {
   IconButton,
 } from "@material-tailwind/react";
 import {
-  // CubeTransparentIcon,
   ChevronDownIcon,
   PowerIcon,
   Bars2Icon,
@@ -25,7 +24,7 @@ import { useNavigate } from "react-router-dom";
 type ProfileMenuItem = {
   label: string;
   icon: React.ElementType;
-  onClick?: () => void; // Add onClick handler for menu items
+  onClick?: () => void;
 };
 
 function ProfileMenu({ handleLogout }: { handleLogout: () => void }) {
@@ -33,9 +32,8 @@ function ProfileMenu({ handleLogout }: { handleLogout: () => void }) {
 
   const closeMenu = () => setIsMenuOpen(false);
 
-  // Define profileMenuItems inside the ProfileMenu component
   const profileMenuItems: ProfileMenuItem[] = [
-    { label: "Sign Out", icon: PowerIcon, onClick: handleLogout }, // Use handleLogout from props
+    { label: "Sign Out", icon: PowerIcon, onClick: handleLogout },
   ];
 
   return (
@@ -69,7 +67,7 @@ function ProfileMenu({ handleLogout }: { handleLogout: () => void }) {
               key={label}
               onClick={() => {
                 closeMenu();
-                if (onClick) onClick(); // Call onClick handler if it exists
+                if (onClick) onClick();
               }}
               className={`flex items-center gap-2 rounded ${
                 isLastItem
@@ -106,9 +104,7 @@ type NavListItem = {
 
 const navListItems: NavListItem[] = [
   { label: "Create Article", icon: DocumentIcon, link: "/createArticle" },
-  // { label: "Category", icon: CubeTransparentIcon, link: "/category" },
   { label: "Statistic", icon: ChartBarIcon, link: "/statistic" },
-  // Add other items as necessary
 ];
 
 function NavList() {
@@ -146,49 +142,50 @@ export function ComplexNavbar() {
 
   const handleLogout = (): void => {
     localStorage.removeItem("token");
-    navigate("/");
+    navigate("/", { replace: true }); // Use replace to avoid history stack issues
   };
 
   return (
-    <Navbar className="mx-auto max-w-screen-xl bg-[#000000] p-2 lg:rounded-full lg:pl-6 fixed w-full z-10">
-      <div className="relative mx-auto flex items-center justify-between text-blue-gray-900">
-        <Typography
-          as="a"
-          href="/homePage"
-          className="mr-4 ml-2 cursor-pointer py-1.5 font-medium text-[#ffff]"
-        >
-          Travel Article
-        </Typography>
-        <div className="hidden lg:block">
-          <NavList />
+    <>
+      <Navbar className="mx-auto max-w-screen-xl bg-[#000000] p-2 lg:rounded-full lg:pl-6 fixed w-full z-10 top-0 mt-[40px]">
+        <div className="relative mx-auto flex items-center justify-between text-blue-gray-900">
+          <Typography
+            as="a"
+            href="/homePage"
+            className="mr-4 ml-2 cursor-pointer py-1.5 font-medium text-[#ffff]"
+          >
+            Travel Article
+          </Typography>
+          {/* NavList and ProfileMenu hidden on small screens */}
+          <div className="hidden lg:flex lg:items-center lg:gap-4">
+            <NavList />
+            <ProfileMenu handleLogout={handleLogout} />
+          </div>
+          {/* Burger Icon visible only on small screens */}
+          <IconButton
+            size="sm"
+            color="blue-gray"
+            variant="text"
+            onClick={toggleIsNavOpen}
+            className="ml-auto mr-2 lg:hidden"
+          >
+            <Bars2Icon className="h-6 w-6" />
+          </IconButton>
         </div>
-        <IconButton
-          size="sm"
-          color="blue-gray"
-          variant="text"
-          onClick={toggleIsNavOpen}
-          className="ml-auto mr-2 lg:hidden"
-        >
-          <Bars2Icon className="h-6 w-6" />
-        </IconButton>
+        {/* Mobile Nav visible only on small screens */}
+      </Navbar>
 
-        {/* Logout Button */}
-        {/* <Button
-          onClick={handleLogout} // Correctly call handleLogout
-          className="items-end flex justify-end"
-          color="white"
-          size="sm"
-          variant="text"
-        >
-          <span>Log out</span>
-        </Button> */}
-
-        {/* Profile Menu */}
-        <ProfileMenu handleLogout={handleLogout} />
-      </div>
-      <MobileNav open={isNavOpen} className="overflow-scroll">
-        <NavList />
+      <MobileNav
+        open={isNavOpen}
+        className="lg:hidden absolute left-0 w-full bg-[#000000] shadow-lg mt-[-40px]"
+      >
+        <div className="p-4">
+          <NavList />
+          <div className="mt-4">
+            <ProfileMenu handleLogout={handleLogout} />
+          </div>
+        </div>
       </MobileNav>
-    </Navbar>
+    </>
   );
 }

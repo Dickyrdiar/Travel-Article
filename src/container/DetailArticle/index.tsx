@@ -39,9 +39,9 @@ const DetaileArticle: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [errorComment, setErrorComment] = useState<string | null>(null);
-  const [commentContent, setCommentContent] = useState<string>(""); // State for comment input
-  const [editCommentId, setEditCommentId] = useState<number | null>(null); // State for editing comment ID
-  const [editCommentContent, setEditCommentContent] = useState<string>(""); // State for editing comment content
+  const [commentContent, setCommentContent] = useState<string>("");
+  const [editCommentId, setEditCommentId] = useState<number | null>(null);
+  const [editCommentContent, setEditCommentContent] = useState<string>("");
   const [open, setOpen] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
@@ -71,42 +71,21 @@ const DetaileArticle: React.FC = () => {
     }
   };
 
-  const fetchingComments = async (documentId: string | undefined) => {
-    const token = localStorage.getItem("token");
-
-    if (!documentId) {
-      setErrorComment("Invalid document ID.");
-      return;
-    }
+  const fetchingComment = async (documentId: string) => {
+    const url = `https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/comments/${documentId}`;
+    const token = localStorage.getItem('token');
 
     try {
       setLoading(true);
-      setError(null);
-
-      const response = await axios.get(
-        `https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/comments/${documentId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         }
-      );
+      });
 
-      // Log the response for debugging
-      console.log("API Response:", response);
-
-      // Ensure comments is an array even if data is undefined
-      setComments(response.data?.data || []);
+      console.log("response", response);
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error("Axios Error:", error.response?.data || error.message);
-        setErrorComment(error.response?.data?.message || "Failed to fetch comments. Please try again later.");
-      } else {
-        console.error("Unexpected Error:", error);
-        setErrorComment("An unexpected error occurred. Please try again later.");
-      }
-    } finally {
-      setLoading(false);
+      console.log(error);
     }
   };
 
@@ -142,10 +121,10 @@ const DetaileArticle: React.FC = () => {
         }
       );
 
-      await fetchingComments(detailArticle.documentId);
+      await fetchingComment(detailArticle.documentId);
       setCommentContent("");
-      setComments(response?.data?.data)
-      navigate('/homePage')
+      setComments(response?.data?.data);
+      navigate('/homePage');
       console.log("response", response);
     } catch (error) {
       console.error("Error posting comment:", error);
@@ -176,12 +155,11 @@ const DetaileArticle: React.FC = () => {
         }
       );
 
-      // Refresh comments after deletion
       if (detailArticle?.documentId) {
-        await fetchingComments(detailArticle.documentId);
+        await fetchingComment(detailArticle.documentId);
       }
-      navigate('/homePage')
-      console.log("fine")
+      navigate('/homePage');
+      console.log("fine");
     } catch (error) {
       console.error("Error deleting comment:", error);
       setErrorComment("Failed to delete comment. Please try again later.");
@@ -216,9 +194,8 @@ const DetaileArticle: React.FC = () => {
         }
       );
 
-      // Refresh comments after update
       if (detailArticle?.documentId) {
-        await fetchingComments(detailArticle.documentId);
+        await fetchingComment(detailArticle.documentId);
       }
     } catch (error) {
       console.error("Error updating comment:", error);
@@ -266,13 +243,15 @@ const DetaileArticle: React.FC = () => {
   }, [id]);
 
   useEffect(() => {
-    fetchingComments(detailArticle?.documentId);
+    if (detailArticle?.documentId) {
+      fetchingComment(detailArticle.documentId);
+    }
   }, [detailArticle?.documentId]);
 
-  console.log("comment", comments)
+  console.log("comment", comments);
 
   const article = JSON.parse(localStorage.getItem("article") ?? "null");
-  console.log(article.comments)
+  console.log("article in detail", article?.comments);
 
   if (loading) {
     return (
@@ -293,9 +272,9 @@ const DetaileArticle: React.FC = () => {
   }
 
   return (
-    <div className="p-4 max-w-full w-[850px]"> {/* Ensure the container takes full width */}
+    <div className="p-4 w-full max-w-4xl mx-auto"> {/* Responsive container */}
       {detailArticle ? (
-        <Card className="w-full mx-auto overflow-hidden"> {/* Remove max-w-full */}
+        <Card className="w-full overflow-hidden">
           <CardHeader
             floated={false}
             shadow={false}
@@ -308,7 +287,7 @@ const DetaileArticle: React.FC = () => {
               className="w-full h-auto md:h-[400px] object-cover"
             />
           </CardHeader>
-          <CardBody className="w-full"> {/* Ensure CardBody takes full width */}
+          <CardBody className="w-full">
             <Typography variant="h4" color="blue-gray" className="mb-4">
               {detailArticle.title}
             </Typography>
@@ -316,7 +295,7 @@ const DetaileArticle: React.FC = () => {
               {detailArticle.description}
             </Typography>
           </CardBody>
-          <CardFooter className="flex flex-col md:flex-row items-center justify-between gap-4 w-full"> {/* Ensure CardFooter takes full width */}
+          <CardFooter className="flex flex-col md:flex-row items-center justify-between gap-4 w-full">
             <div className="flex gap-2">
               <Button color="black" onClick={handleUpdate}>
                 Update
@@ -326,18 +305,15 @@ const DetaileArticle: React.FC = () => {
               </Button>
             </div>
           </CardFooter>
-    
-          {/* Horizontal Line */}
-          <hr className="my-4 border-gray-700 w-full" /> {/* Ensure the line spans full width */}
-    
-          {/* Comments Section */}
-          <CardBody className="w-full"> {/* Ensure CardBody takes full width */}
+
+          <hr className="my-4 border-gray-700 w-full" />
+
+          <CardBody className="w-full">
             <Typography variant="h5" color="blue-gray" className="mb-4">
               Comments
             </Typography>
-    
-            {/* Comment Input Form */}
-            <div className="mt-4 w-full"> {/* Ensure the form takes full width */}
+
+            <div className="mt-4 w-full">
               <Textarea
                 label="Write a comment..."
                 value={commentContent}
@@ -346,26 +322,25 @@ const DetaileArticle: React.FC = () => {
               />
               <Button
                 color="black"
-                className="mt-2 w-[340px] items-left" 
+                className="mt-2 w-full md:w-auto"
                 onClick={handlePostComment}
                 disabled={loading}
               >
                 {loading ? "Posting..." : "Post Comment"}
               </Button>
             </div>
-    
-            {/* Display Comments */}
-            {!errorComment ? (
+
+            {errorComment ? (
               <div className="text-center py-4">
                 <Typography variant="h6" color="red">
                   {errorComment}
                 </Typography>
               </div>
             ) : article?.comments && article.comments.length > 0 ? (
-              article.comments.map((comment: any) => (
-                <div key={comment.id} className="mt-4 w-full"> {/* Ensure each comment takes full width */}
+              article?.comments?.map((comment: any) => (
+                <div key={comment.id} className="mt-4 w-full">
                   {editCommentId === comment.id ? (
-                    <div className="w-full"> {/* Ensure the edit section takes full width */}
+                    <div className="w-full">
                       <Textarea
                         label="Edit your comment..."
                         value={editCommentContent}
@@ -374,7 +349,7 @@ const DetaileArticle: React.FC = () => {
                       />
                       <Button
                         color="black"
-                        className="mt-2 w-full" 
+                        className="mt-2 w-full md:w-auto"
                         onClick={() => {
                           handleUpdateComment(comment.id, editCommentContent);
                           setEditCommentId(null);
@@ -385,7 +360,7 @@ const DetaileArticle: React.FC = () => {
                       </Button>
                     </div>
                   ) : (
-                    <div className="w-full"> {/* Ensure the comment content takes full width */}
+                    <div className="w-full">
                       <Typography variant="small" color="gray" className="font-normal text-left">
                         {comment.content}
                       </Typography>
@@ -433,7 +408,7 @@ const DetaileArticle: React.FC = () => {
           </Typography>
         </div>
       )}
-    
+
       <ConfirmationDialog
         open={open}
         onClose={() => setOpen(!open)}
