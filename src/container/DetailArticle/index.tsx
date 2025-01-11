@@ -178,6 +178,8 @@ const DetaileArticle: React.FC = () => {
       return;
     }
 
+
+
     try {
       setLoading(true);
       setErrorComment(null);
@@ -199,6 +201,7 @@ const DetaileArticle: React.FC = () => {
       if (detailArticle?.documentId) {
         await fetchingComment(detailArticle.documentId);
       }
+      navigate("/homePage");
     } catch (error) {
       console.error("Error updating comment:", error);
       setErrorComment("Failed to update comment. Please try again later.");
@@ -353,7 +356,7 @@ const DetaileArticle: React.FC = () => {
                         color="black"
                         className="mt-2 w-full md:w-auto"
                         onClick={() => {
-                          handleUpdateComment(comment.id, editCommentContent);
+                          handleUpdateComment(comment.documentId, editCommentContent);
                           setEditCommentId(null);
                         }}
                         disabled={loading}
