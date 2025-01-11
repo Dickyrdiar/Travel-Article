@@ -3,11 +3,20 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+// Interface untuk response error
+interface ApiError {
+  details: Record<string, unknown>;
+  message: string;
+  name: string;
+  status: number;
+}
+
+// Interface untuk state auth
 interface AuthState {
   user: any;
   token: string | null;
   loading: boolean;
-  error: object | null;
+  error: ApiError | null;
 }
 
 const initialState: AuthState = {
@@ -17,6 +26,7 @@ const initialState: AuthState = {
   error: null,
 };
 
+// Async thunk untuk login
 export const login = createAsyncThunk(
   'auth/login',
   async (credentials: { identifier: string; password: string }, { rejectWithValue }) => {
@@ -24,11 +34,16 @@ export const login = createAsyncThunk(
       const response = await axios.post('https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/auth/local', credentials);
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error?.response?.data?.error || {
+        message: 'An unknown error occurred',
+        name: 'ValidationError',
+        status: 500,
+      });
     }
   }
 );
 
+// Buat slice untuk auth
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -36,7 +51,7 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.token = null;
-      localStorage.removeItem('token'); // Remove the token from localStorage
+      localStorage.removeItem('token'); // Hapus token dari localStorage
     },
   },
   extraReducers: (builder) => {
@@ -50,15 +65,34 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = user;
         state.token = jwt;
-        localStorage.setItem('token', jwt); // Save the token to localStorage
+        localStorage.setItem('token', jwt); // Simpan token ke localStorage
       })
-      .addCase(login.rejected, (state, action: PayloadAction<any>) => {
+      .addCase(login.rejected, (state, action: PayloadAction<unknown>) => {
         state.loading = false;
-        state.error = action.payload;
+
+        // Safely handle the unknown type
+        if (typeof action.payload === 'object' && action.payload !== null) {
+          const errorPayload = action.payload as ApiError; // Cast to ApiError
+          state.error = {
+            details: errorPayload.details || {},
+            message: errorPayload.message || 'An unknown error occurred',
+            name: errorPayload.name || 'ValidationError',
+            status: errorPayload.status || 500,
+          };
+        } else {
+          state.error = {
+            details: {},
+            message: 'An unknown error occurred',
+            name: 'ValidationError',
+            status: 500,
+          };
+        }
       });
   },
 });
 
+// Export actions
 export const { logout } = authSlice.actions;
 
+// Export reducer
 export default authSlice.reducer;

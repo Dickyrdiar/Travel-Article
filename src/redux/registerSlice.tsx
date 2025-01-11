@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// src/features/auth/types.ts
 // src/features/auth/types.ts
 export interface User {
   id: number;
@@ -12,12 +14,20 @@ export interface RegisterCredentials {
   password: string;
 }
 
+export interface ErrorResponse {
+  message: string;
+  details?: Record<string, any>; // Untuk menyimpan detail error jika ada
+  status?: number; // Status code error
+}
+
 export interface AuthState {
   user: User | null;
   loading: boolean;
   error: string | null;
+  errorDetails: ErrorResponse | null; // Menyimpan detail error
 }
 
+// src/features/auth/authSlice.ts
 // src/features/auth/authSlice.ts
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
@@ -27,13 +37,13 @@ const API_URL = 'https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/auth/loc
 export const registerUser = createAsyncThunk<
   User,
   RegisterCredentials,
-  { rejectValue: string }
+  { rejectValue: ErrorResponse } // Gunakan ErrorResponse sebagai tipe rejectValue
 >(
   'auth/register',
   async (credentials: { username: string, email: string, password: string }, { rejectWithValue }) => {
     try {
       const response = await axios.post(API_URL, credentials);
-      console.log("response", response)
+      console.log("response", response);
       
       // Assuming the API returns { user: User, jwt: string }
       const { jwt, user } = response.data;
@@ -41,12 +51,19 @@ export const registerUser = createAsyncThunk<
       // Store the token in localStorage
       localStorage.setItem('token', jwt);
       
-      return { ...user, jwt } ;
+      return { ...user, jwt };
     } catch (error) {
+      // console.log("error", error?.response?.data?.error?.message || "An unknown error occurred")
+
       if (axios.isAxiosError(error)) {
-        return rejectWithValue(error.response?.data?.message || 'Registration failed');
+        // Tangkap error response dari API
+        const errorResponse: ErrorResponse = {
+          message: error?.response?.data?.error?.message , 
+          details: error.response?.data?.details, 
+          status: error.response?.status || 500,
+        };
+        return rejectWithValue(errorResponse);
       }
-      return rejectWithValue('Registration failed');
     }
   }
 );
@@ -55,6 +72,7 @@ const initialState: AuthState = {
   user: null,
   loading: false,
   error: null,
+  errorDetails: null, // Inisialisasi errorDetails
 };
 
 const authSlice = createSlice({
@@ -64,10 +82,12 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.error = null;
+      state.errorDetails = null; // Reset errorDetails saat logout
       localStorage.removeItem('token');
     },
     clearError: (state) => {
       state.error = null;
+      state.errorDetails = null; // Reset errorDetails saat clearError
     },
   },
   extraReducers: (builder) => {
@@ -75,15 +95,18 @@ const authSlice = createSlice({
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.errorDetails = null; // Reset errorDetails saat pending
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
-        state.error = null;  // Set error to null on success
+        state.error = null; // Set error to null on success
+        state.errorDetails = null; // Reset errorDetails on success
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Registration failed';
+        state.error = action.payload?.message || null
+        state.errorDetails = action.payload || null
       });
   },
 });
